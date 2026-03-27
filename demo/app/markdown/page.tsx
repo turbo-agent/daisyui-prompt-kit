@@ -42,7 +42,7 @@ This is a **bold text** and this is an *italic text*.
 ## Math Equations
 
 ### Inline Math
-The quadratic formula is $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$.
+The quadratic formula is $x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$.
 
 Einstein's mass-energy equivalence: $E = mc^2$
 

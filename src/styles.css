@@ -99,6 +99,17 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* KaTeX MathML accessibility - hide from visual display but keep for screen readers */
+.katex-mathml {
+  position: absolute;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 0;
+  border: 0;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
+
 /* Animation keyframes */
 @keyframes typing {
   0%, 100% { transform: translateY(0); opacity: 0.5; }
