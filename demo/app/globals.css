@@ -1,0 +1,114 @@
+@import "tailwindcss";
+@source "../../src/**/*.tsx";
+@plugin "@tailwindcss/typography";
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+  logs: false;
+}
+
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: #ffffff;
+  --color-base-200: #eef0f2;
+  --color-base-300: #dcdee0;
+  --color-base-content: #1e2328;
+  --color-primary: #167bff;
+  --color-primary-content: #ffffff;
+  --color-secondary: #39c2cc;
+  --color-secondary-content: #04232a;
+  --color-accent: #00d3bb;
+  --color-accent-content: #052a24;
+  --color-neutral: #1e2832;
+  --color-neutral-content: #fafcff;
+  --color-info: #14b4ff;
+  --color-info-content: #072235;
+  --color-success: #0bbf58;
+  --color-success-content: #031f11;
+  --color-warning: #f5a524;
+  --color-warning-content: #2e1a00;
+  --color-error: #f31260;
+  --color-error-content: #ffffff;
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #181c20;
+  --color-base-200: #22262a;
+  --color-base-300: #2c3034;
+  --color-base-content: #f0f4f8;
+  --color-primary: #378dff;
+  --color-primary-content: #ffffff;
+  --color-secondary: #58d7e0;
+  --color-secondary-content: #041f24;
+  --color-accent: #00d3bb;
+  --color-accent-content: #01261f;
+  --color-neutral: #dce1e6;
+  --color-neutral-content: #1e2832;
+  --color-info: #49c4ff;
+  --color-info-content: #021b2a;
+  --color-success: #1fca6d;
+  --color-success-content: #031b0f;
+  --color-warning: #ffbb4d;
+  --color-warning-content: #2e1b00;
+  --color-error: #ff5c93;
+  --color-error-content: #2f0011;
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+:root {
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", "SFMono-Regular", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Chat container sizing */
+.demo-chat-root {
+  position: relative;
+  height: 420px;
+}
+
+.demo-chat-content {
+  gap: 10px;
+  padding: 12px;
+}

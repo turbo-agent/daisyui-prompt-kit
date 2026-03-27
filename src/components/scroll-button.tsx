@@ -5,13 +5,13 @@ import { useStickToBottomContext } from 'use-stick-to-bottom'
 
 export type ScrollButtonProps = {
   className?: string
-  variant?: 'default' | 'primary' | 'secondary' | 'ghost'
+  variant?: 'default' | 'primary' | 'secondary' | 'ghost' | 'outline'
   size?: 'xs' | 'sm' | 'md'
 } & React.ButtonHTMLAttributes<HTMLButtonElement>
 
 function ScrollButton({
   className,
-  variant = 'ghost',
+  variant = 'outline',
   size = 'sm',
   onClick,
   ...props
@@ -29,6 +29,7 @@ function ScrollButton({
     primary: 'btn btn-primary',
     secondary: 'btn btn-secondary',
     ghost: 'btn btn-ghost',
+    outline: 'btn btn-outline',
   }
 
   return (

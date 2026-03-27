@@ -33,23 +33,23 @@ function SourceTrigger({ label, showFavicon = false, className }: SourceTriggerP
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-2 px-3 py-1.5 rounded-full',
-        'bg-base-200 hover:bg-base-300 transition-colors',
-        'text-sm text-base-content/80',
+        'inline-flex h-5 max-w-32 items-center gap-1 overflow-hidden rounded-full text-xs no-underline transition-colors duration-150',
+        'bg-base-200 text-base-content/60 hover:bg-base-content/20 hover:text-primary',
+        showFavicon ? 'pr-2 pl-1' : 'px-1',
         className
       )}
     >
       {showFavicon && (
         <img
-          src={`https://www.google.com/s2/favicons?domain=${domain}&sz=16`}
+          src={`https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(domain)}`}
           alt=""
-          className="w-4 h-4"
+          className="size-3.5 rounded-full"
           onError={(e) => {
             e.currentTarget.style.display = 'none'
           }}
         />
       )}
-      <span className="truncate max-w-[200px]">{domain}</span>
+      <span className="truncate tabular-nums text-center font-normal">{domain}</span>
     </div>
   )
 }

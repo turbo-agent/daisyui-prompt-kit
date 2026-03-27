@@ -1,39 +1,50 @@
 'use client'
 
 import { cn } from '@/utils/cn'
+import { TextShimmer } from './text-shimmer'
 
 export type ThinkingBarProps = {
   isThinking?: boolean
   text?: string
   className?: string
+  onStop?: () => void
+  stopLabel?: string
+  onClick?: () => void
 }
 
 function ThinkingBar({
   isThinking = true,
-  text = 'Thinking...',
+  text = 'Thinking',
   className,
+  onStop,
+  stopLabel = 'Answer now',
+  onClick,
 }: ThinkingBarProps) {
+  if (!isThinking) return null
+
   return (
-    <div
-      className={cn(
-        'flex items-center gap-2 px-3 py-2 rounded-lg',
-        'bg-primary/10 text-primary',
-        'transition-all duration-300',
-        isThinking ? 'opacity-100' : 'opacity-0 h-0 py-0 overflow-hidden',
-        className
-      )}
-    >
-      {isThinking ? (
-        <>
-          <span className="icon-[lucide--loader-circle] h-4 w-4 animate-spin" aria-hidden="true" />
-          <span className="text-sm font-medium">{text}</span>
-        </>
+    <div className={cn('flex w-full items-center justify-between', className)}>
+      {onClick ? (
+        <button
+          type="button"
+          onClick={onClick}
+          className="flex items-center gap-1 text-sm transition-opacity hover:opacity-80"
+        >
+          <TextShimmer className="font-medium">{text}</TextShimmer>
+          <span className="icon-[lucide--chevron-right] text-base-content/60 size-4" aria-hidden="true" />
+        </button>
       ) : (
-        <>
-          <span className="icon-[lucide--brain] h-4 w-4" aria-hidden="true" />
-          <span className="text-sm font-medium">Done</span>
-        </>
+        <TextShimmer className="cursor-default font-medium">{text}</TextShimmer>
       )}
+      {onStop ? (
+        <button
+          onClick={onStop}
+          type="button"
+          className="text-base-content/60 hover:text-base-content border-base-content/40 hover:border-base-content border-b border-dotted text-sm transition-colors"
+        >
+          {stopLabel}
+        </button>
+      ) : null}
     </div>
   )
 }

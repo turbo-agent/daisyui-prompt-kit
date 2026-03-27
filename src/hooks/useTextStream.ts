@@ -133,9 +133,10 @@ export function useTextStream({
           }
 
           if (currentSegment < newSegments.length) {
-            setSegments((previous) => [...previous, newSegments[currentSegment]])
-            setDisplayedText(prev => prev + newSegments[currentSegment].text)
+            const seg = newSegments[currentSegment]
             currentSegment++
+            setSegments((previous) => [...previous, seg])
+            setDisplayedText(prev => prev + seg.text)
             timerRef.current = window.setTimeout(showNextSegment, calculatedSegmentDelay)
           } else {
             setIsComplete(true)

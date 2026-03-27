@@ -5,7 +5,6 @@ import React, {
   createContext,
   useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -56,16 +55,15 @@ export const ChainOfThoughtTrigger = ({
   leftIcon,
   swapIconOnHover = true,
   onClick,
-  hideMarker = false,
   ...props
-}: ChainOfThoughtTriggerProps & { hideMarker?: boolean }) => {
+}: ChainOfThoughtTriggerProps) => {
   const { isOpen, onOpenChange } = useChainOfThoughtStepContext()
 
   return (
     <button
       type="button"
       className={cn(
-        'flex w-full cursor-pointer items-center justify-start gap-1 text-left text-sm font-normal leading-6 text-base-content/60 transition-colors hover:text-base-content/80',
+        'group flex w-full cursor-pointer items-center justify-start gap-1 text-left text-sm font-normal leading-6 text-base-content/60 transition-colors hover:text-base-content/80',
         className,
       )}
       data-state={isOpen ? 'open' : 'closed'}
@@ -76,33 +74,31 @@ export const ChainOfThoughtTrigger = ({
       {...props}
     >
       <div className="flex min-w-0 items-center gap-2">
-        {!hideMarker
-          ? leftIcon ? (
-              <span className="relative inline-flex size-4 items-center justify-center">
-                <span
-                  className={cn(
-                    'inline-flex size-4 items-center justify-center transition-opacity',
-                    swapIconOnHover && 'group-hover:opacity-0',
-                  )}
-                >
-                  {leftIcon}
-                </span>
-                {swapIconOnHover ? (
-                  <span
-                    className={cn(
-                      'icon-[lucide--chevron-down] absolute inline-block size-4 shrink-0 opacity-0 transition-opacity group-hover:opacity-100',
-                      isOpen && 'rotate-180',
-                    )}
-                    aria-hidden="true"
-                  />
-                ) : null}
-              </span>
-            ) : (
-              <span className="relative inline-flex size-4 items-center justify-center">
-                <span className="inline-block size-2.5 shrink-0 rounded-full bg-current" />
-              </span>
-            )
-          : null}
+        {leftIcon ? (
+          <span className="relative inline-flex size-4 items-center justify-center">
+            <span
+              className={cn(
+                'inline-flex size-4 items-center justify-center transition-opacity',
+                swapIconOnHover && 'group-hover:opacity-0',
+              )}
+            >
+              {leftIcon}
+            </span>
+            {swapIconOnHover ? (
+              <span
+                className={cn(
+                  'icon-[lucide--chevron-down] absolute inline-block size-4 shrink-0 opacity-0 transition-opacity group-hover:opacity-100',
+                  isOpen && 'rotate-180',
+                )}
+                aria-hidden="true"
+              />
+            ) : null}
+          </span>
+        ) : (
+          <span className="relative inline-flex size-4 items-center justify-center">
+            <span className="inline-block size-2.5 shrink-0 rounded-full bg-current" />
+          </span>
+        )}
         <span className="min-w-0">{children}</span>
       </div>
       {!leftIcon ? (
@@ -127,57 +123,49 @@ export const ChainOfThoughtContent = ({
 }: ChainOfThoughtContentProps) => {
   const { isOpen } = useChainOfThoughtStepContext()
   const contentRef = useRef<HTMLDivElement>(null)
-  const [contentHeight, setContentHeight] = useState(0)
+  const innerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const element = contentRef.current
-
-    if (!element) {
+    if (!contentRef.current || !innerRef.current) {
       return
     }
-
-    const updateHeight = () => {
-      setContentHeight(element.scrollHeight)
-    }
-
-    updateHeight()
 
     if (typeof ResizeObserver === 'undefined') {
       return
     }
 
     const observer = new ResizeObserver(() => {
-      updateHeight()
+      if (contentRef.current && innerRef.current && isOpen) {
+        contentRef.current.style.maxHeight = `${innerRef.current.scrollHeight}px`
+      }
     })
 
-    observer.observe(element)
+    observer.observe(innerRef.current)
+
+    if (isOpen && contentRef.current && innerRef.current) {
+      contentRef.current.style.maxHeight = `${innerRef.current.scrollHeight}px`
+    }
 
     return () => {
       observer.disconnect()
     }
-  }, [children, isOpen])
+  }, [isOpen])
 
   return (
     <div
       className={cn(
-        'grid overflow-hidden transition-[grid-template-rows,opacity] duration-200 ease-out data-[state=closed]:pointer-events-none',
+        'overflow-hidden transition-[max-height] duration-150 ease-out',
         className,
       )}
       data-state={isOpen ? 'open' : 'closed'}
-      style={{
-        gridTemplateRows: isOpen ? '1fr' : '0fr',
-        opacity: isOpen ? 1 : 0,
-      }}
+      ref={contentRef}
+      style={{ maxHeight: isOpen ? contentRef.current?.scrollHeight : '0px' }}
       {...props}
     >
-      <div
-        ref={contentRef}
-        className="min-h-0 overflow-hidden transition-[max-height] duration-200 ease-out"
-        style={{
-          maxHeight: isOpen ? `${contentHeight}px` : '0px',
-        }}
-      >
-        <div className="mt-1.5 min-w-0 space-y-2">{children}</div>
+      <div ref={innerRef} className="grid grid-cols-[min-content_minmax(0,1fr)] gap-x-4">
+        <div className="ml-[7px] h-full w-px bg-primary/20 group-data-[last=true]:hidden" />
+        <div className="ml-[7px] h-full w-px bg-transparent group-data-[last=false]:hidden" />
+        <div className="mt-2 min-w-0 space-y-2">{children}</div>
       </div>
     </div>
   )
@@ -192,7 +180,7 @@ export function ChainOfThought({ children, className }: ChainOfThoughtProps) {
   const childrenArray = React.Children.toArray(children)
 
   return (
-    <ul className={cn('steps steps-vertical !grid !w-full !overflow-visible', className)}>
+    <div className={cn('space-y-0', className)}>
       {childrenArray.map((child, index) => (
         <React.Fragment key={index}>
           {React.isValidElement(child)
@@ -205,7 +193,7 @@ export function ChainOfThought({ children, className }: ChainOfThoughtProps) {
             : child}
         </React.Fragment>
       ))}
-    </ul>
+    </div>
   )
 }
 
@@ -230,76 +218,24 @@ export const ChainOfThoughtStep = ({
   const isControlled = open !== undefined
   const isOpen = isControlled ? open : internalOpen
 
-  const value = useMemo(
-    () => ({
-      isOpen,
-      onOpenChange: (nextOpen: boolean) => {
-        if (!isControlled) {
-          setInternalOpen(nextOpen)
-        }
-        onOpenChange?.(nextOpen)
-      },
-    }),
-    [isControlled, isOpen, onOpenChange],
-  )
-
-  const childrenArray = React.Children.toArray(children)
-  const triggerChild = childrenArray.find(
-    (child): child is React.ReactElement<ChainOfThoughtTriggerProps> =>
-      React.isValidElement(child) && child.type === ChainOfThoughtTrigger,
-  )
-
-  const renderedChildren = childrenArray.map((child) => {
-    if (React.isValidElement(child) && child.type === ChainOfThoughtTrigger) {
-      return React.cloneElement(child as React.ReactElement<ChainOfThoughtTriggerProps>, {
-        hideMarker: true,
-      })
-    }
-
-    return child
-  })
-
-  const marker = triggerChild?.props.leftIcon ? (
-    <span className="relative inline-flex size-4 items-center justify-center text-base-content/60">
-      <span
-        className={cn(
-          'inline-flex size-4 items-center justify-center transition-opacity',
-          triggerChild.props.swapIconOnHover !== false && 'group-hover:opacity-0',
-        )}
-      >
-        {triggerChild.props.leftIcon}
-      </span>
-      {triggerChild.props.swapIconOnHover !== false ? (
-        <span
-          className={cn(
-            'icon-[lucide--chevron-down] absolute inline-block size-4 shrink-0 opacity-0 transition-opacity group-hover:opacity-100',
-            isOpen && 'rotate-180',
-          )}
-          aria-hidden="true"
-        />
-      ) : null}
-    </span>
-  ) : (
-    <span className="inline-block size-2.5 shrink-0 rounded-full bg-base-content/60" />
-  )
+  const value: ChainOfThoughtStepContextValue = {
+    isOpen,
+    onOpenChange: (nextOpen: boolean) => {
+      if (!isControlled) {
+        setInternalOpen(nextOpen)
+      }
+      onOpenChange?.(nextOpen)
+    },
+  }
 
   return (
     <ChainOfThoughtStepContext.Provider value={value}>
-      <li
-        className={cn(
-          'step !min-h-0 !w-full !grid-cols-[40px_minmax(0,1fr)] !justify-items-start !gap-x-3 !gap-y-0 text-left [--step-bg:var(--color-base-300)] [--step-fg:var(--color-base-content)] before:!w-px before:!border-0 before:!bg-base-300 before:!translate-x-0 before:!translate-y-[-50%] first:before:!content-none',
-          className,
-        )}
-        data-last={isLast}
-      >
-        <span
-          className="step-icon !mt-1 !size-4 !min-h-4 !min-w-4 !place-self-start !bg-transparent !border-0 !p-0"
-          aria-hidden="true"
-        >
-          {marker}
-        </span>
-        <div className="min-w-0 w-full">{renderedChildren}</div>
-      </li>
+      <div className={cn('group', className)} data-last={isLast}>
+        {children}
+        <div className="flex justify-start group-data-[last=true]:hidden">
+          <div className="ml-[7px] h-4 w-px bg-primary/20" />
+        </div>
+      </div>
     </ChainOfThoughtStepContext.Provider>
   )
 }
