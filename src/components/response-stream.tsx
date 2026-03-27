@@ -1,7 +1,8 @@
 'use client'
 
+import { cn } from '@/utils/cn'
 import { useTextStream, type TextStreamMode } from '@/hooks/useTextStream'
-import { useEffect } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 
 export type ResponseStreamProps = {
   textStream: string | AsyncIterable<string>
@@ -9,6 +10,7 @@ export type ResponseStreamProps = {
   speed?: number
   className?: string
   onComplete?: () => void
+  as?: keyof React.JSX.IntrinsicElements
   fadeDuration?: number
   segmentDelay?: number
   characterChunkSize?: number
@@ -20,11 +22,13 @@ function ResponseStream({
   speed = 20,
   className,
   onComplete,
+  as = 'div',
   fadeDuration,
   segmentDelay,
   characterChunkSize,
 }: ResponseStreamProps) {
-  const { displayedText, segments, startStreaming } = useTextStream({
+  const animationEndRef = useRef<(() => void) | null>(null)
+  const { displayedText, isComplete, segments, getFadeDuration, getSegmentDelay } = useTextStream({
     textStream,
     speed,
     mode,
@@ -35,29 +39,60 @@ function ResponseStream({
   })
 
   useEffect(() => {
-    startStreaming()
-  }, [startStreaming])
+    animationEndRef.current = onComplete ?? null
+  }, [onComplete])
+
+  const handleLastSegmentAnimationEnd = useCallback(() => {
+    if (animationEndRef.current && isComplete) {
+      animationEndRef.current()
+    }
+  }, [isComplete])
+
+  const fadeStyle = `
+    @keyframes daisyuiPromptKitFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .dpk-fade-segment {
+      display: inline-block;
+      opacity: 0;
+      animation: daisyuiPromptKitFadeIn ${getFadeDuration()}ms ease-out forwards;
+    }
+
+    .dpk-fade-space {
+      white-space: pre;
+    }
+  `
+
+  const Container = as as keyof React.JSX.IntrinsicElements
 
   if (mode === 'fade') {
     return (
-      <div className={className}>
-        {segments.map((segment, index) => (
-          <span
-            key={index}
-            className="inline-block animate-fade-in"
-            style={{
-              animationDelay: `${index * (segmentDelay || 50)}ms`,
-              animationFillMode: 'both',
-            }}
-          >
-            {segment.text}
-          </span>
-        ))}
-      </div>
+      <Container className={className}>
+        <style>{fadeStyle}</style>
+        <div className="relative">
+          {segments.map((segment, index) => {
+            const isWhitespace = /^\s+$/.test(segment.text)
+            const isLastSegment = index === segments.length - 1
+
+            return (
+              <span
+                key={`${segment.text}-${index}`}
+                className={cn('dpk-fade-segment', isWhitespace && 'dpk-fade-space')}
+                style={{ animationDelay: `${index * getSegmentDelay()}ms` }}
+                onAnimationEnd={isLastSegment ? handleLastSegmentAnimationEnd : undefined}
+              >
+                {segment.text}
+              </span>
+            )
+          })}
+        </div>
+      </Container>
     )
   }
 
-  return <div className={className}>{displayedText}</div>
+  return <Container className={className}>{displayedText}</Container>
 }
 
 export { ResponseStream }

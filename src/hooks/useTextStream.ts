@@ -40,124 +40,226 @@ export function useTextStream({
   const [displayedText, setDisplayedText] = useState('')
   const [isComplete, setIsComplete] = useState(false)
   const [segments, setSegments] = useState<{ text: string; index: number }[]>([])
-  const [, setIsPaused] = useState(false)
 
-  const timerRef = useRef<number | undefined>(undefined)
-  const textRef = useRef('')
+  const speedRef = useRef(speed)
+  const modeRef = useRef(mode)
   const currentIndexRef = useRef(0)
-  const pausedRef = useRef(false)
+  const animationRef = useRef<number | null>(null)
+  const fadeDurationRef = useRef(fadeDuration)
+  const segmentDelayRef = useRef(segmentDelay)
+  const characterChunkSizeRef = useRef(characterChunkSize)
+  const streamRef = useRef<AbortController | null>(null)
+  const completedRef = useRef(false)
+  const onCompleteRef = useRef(onComplete)
 
-  const calculatedChunkSize = characterChunkSize ?? Math.max(1, Math.floor(speed / 5))
-  const calculatedFadeDuration = fadeDuration ?? Math.max(200, 1000 - speed * 8)
-  const calculatedSegmentDelay = segmentDelay ?? Math.max(50, 300 - speed * 2)
+  useEffect(() => {
+    speedRef.current = speed
+    modeRef.current = mode
+    fadeDurationRef.current = fadeDuration
+    segmentDelayRef.current = segmentDelay
+    characterChunkSizeRef.current = characterChunkSize
+  }, [speed, mode, fadeDuration, segmentDelay, characterChunkSize])
 
-  const getFadeDuration = useCallback(() => calculatedFadeDuration, [calculatedFadeDuration])
-  const getSegmentDelay = useCallback(() => calculatedSegmentDelay, [calculatedSegmentDelay])
+  useEffect(() => {
+    onCompleteRef.current = onComplete
+  }, [onComplete])
+
+  const getChunkSize = useCallback(() => {
+    if (typeof characterChunkSizeRef.current === 'number') {
+      return Math.max(1, characterChunkSizeRef.current)
+    }
+
+    const normalizedSpeed = Math.min(100, Math.max(1, speedRef.current))
+
+    if (modeRef.current === 'typewriter') {
+      if (normalizedSpeed < 25) return 1
+      return Math.max(1, Math.round((normalizedSpeed - 25) / 10))
+    }
+
+    return 1
+  }, [])
+
+  const getProcessingDelay = useCallback(() => {
+    if (typeof segmentDelayRef.current === 'number') {
+      return Math.max(0, segmentDelayRef.current)
+    }
+
+    const normalizedSpeed = Math.min(100, Math.max(1, speedRef.current))
+    return Math.max(1, Math.round(100 / Math.sqrt(normalizedSpeed)))
+  }, [])
+
+  const getFadeDuration = useCallback(() => {
+    if (typeof fadeDurationRef.current === 'number') {
+      return Math.max(10, fadeDurationRef.current)
+    }
+
+    const normalizedSpeed = Math.min(100, Math.max(1, speedRef.current))
+    return Math.round(1000 / Math.sqrt(normalizedSpeed))
+  }, [])
+
+  const getSegmentDelay = useCallback(() => {
+    if (typeof segmentDelayRef.current === 'number') {
+      return Math.max(0, segmentDelayRef.current)
+    }
+
+    const normalizedSpeed = Math.min(100, Math.max(1, speedRef.current))
+    return Math.max(1, Math.round(100 / Math.sqrt(normalizedSpeed)))
+  }, [])
+
+  const updateSegments = useCallback(
+    (text: string) => {
+      if (modeRef.current !== 'fade') {
+        return
+      }
+
+      try {
+        const segmenter = new Intl.Segmenter(navigator.language, {
+          granularity: 'word',
+        })
+        const nextSegments = Array.from(segmenter.segment(text)).map((segment, index) => ({
+          text: segment.segment,
+          index,
+        }))
+
+        setSegments(nextSegments)
+      } catch (error) {
+        const nextSegments = text
+          .split(/(\s+)/)
+          .filter(Boolean)
+          .map((segment, index) => ({ text: segment, index }))
+
+        setSegments(nextSegments)
+        onError?.(error)
+      }
+    },
+    [onError],
+  )
+
+  const markComplete = useCallback(() => {
+    if (!completedRef.current) {
+      completedRef.current = true
+      setIsComplete(true)
+      onCompleteRef.current?.()
+    }
+  }, [])
 
   const reset = useCallback(() => {
-    if (timerRef.current) {
-      window.clearTimeout(timerRef.current)
-    }
-    setDisplayedText('')
-    setIsComplete(false)
-    setSegments([])
-    textRef.current = ''
     currentIndexRef.current = 0
-    setIsPaused(false)
-    pausedRef.current = false
+    setDisplayedText('')
+    setSegments([])
+    setIsComplete(false)
+    completedRef.current = false
+
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current)
+      animationRef.current = null
+    }
   }, [])
 
   const pause = useCallback(() => {
-    setIsPaused(true)
-    pausedRef.current = true
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current)
+      animationRef.current = null
+    }
   }, [])
 
   const resume = useCallback(() => {
-    setIsPaused(false)
-    pausedRef.current = false
-  }, [])
+    if (typeof textStream === 'string' && !completedRef.current) {
+      processStringStream(textStream)
+    }
+  }, [textStream])
 
-  const startStreaming = useCallback(async () => {
+  const processStringStream = useCallback(
+    (text: string) => {
+      let lastFrameTime = 0
+
+      const streamContent = (timestamp: number) => {
+        const delay = getProcessingDelay()
+
+        if (delay > 0 && timestamp - lastFrameTime < delay) {
+          animationRef.current = requestAnimationFrame(streamContent)
+          return
+        }
+
+        lastFrameTime = timestamp
+
+        if (currentIndexRef.current >= text.length) {
+          markComplete()
+          return
+        }
+
+        const endIndex = Math.min(currentIndexRef.current + getChunkSize(), text.length)
+        const nextText = text.slice(0, endIndex)
+
+        setDisplayedText(nextText)
+        updateSegments(nextText)
+        currentIndexRef.current = endIndex
+
+        if (endIndex < text.length) {
+          animationRef.current = requestAnimationFrame(streamContent)
+          return
+        }
+
+        markComplete()
+      }
+
+      animationRef.current = requestAnimationFrame(streamContent)
+    },
+    [getChunkSize, getProcessingDelay, markComplete, updateSegments],
+  )
+
+  const processAsyncIterable = useCallback(
+    async (stream: AsyncIterable<string>) => {
+      const controller = new AbortController()
+      streamRef.current = controller
+      let displayed = ''
+
+      try {
+        for await (const chunk of stream) {
+          if (controller.signal.aborted) {
+            return
+          }
+
+          displayed += chunk
+          setDisplayedText(displayed)
+          updateSegments(displayed)
+        }
+
+        markComplete()
+      } catch (error) {
+        markComplete()
+        onError?.(error)
+      }
+    },
+    [markComplete, onError, updateSegments],
+  )
+
+  const startStreaming = useCallback(() => {
     reset()
 
-    try {
-      let fullText = ''
-
-      if (typeof textStream === 'string') {
-        fullText = textStream
-      } else {
-        for await (const chunk of textStream) {
-          fullText += chunk
-          if (!pausedRef.current) {
-            textRef.current = fullText
-          }
-        }
-      }
-
-      textRef.current = fullText
-
-      if (mode === 'typewriter') {
-        const animate = () => {
-          if (pausedRef.current) {
-            timerRef.current = window.setTimeout(animate, speed)
-            return
-          }
-
-          const remaining = textRef.current.slice(currentIndexRef.current)
-          const chunk = remaining.slice(0, calculatedChunkSize)
-
-          if (chunk) {
-            currentIndexRef.current += chunk.length
-            setDisplayedText(textRef.current.slice(0, currentIndexRef.current))
-            timerRef.current = window.setTimeout(animate, speed)
-          } else {
-            setIsComplete(true)
-            onComplete?.()
-          }
-        }
-
-        timerRef.current = window.setTimeout(animate, speed)
-      } else if (mode === 'fade') {
-        const newSegments = fullText
-          .split(/(\s+)/)
-          .filter((segment) => segment.length > 0)
-          .map((text, index) => ({ text, index }))
-
-        setSegments([])
-
-        let currentSegment = 0
-        const showNextSegment = () => {
-          if (pausedRef.current) {
-            timerRef.current = window.setTimeout(showNextSegment, calculatedSegmentDelay)
-            return
-          }
-
-          if (currentSegment < newSegments.length) {
-            const seg = newSegments[currentSegment]
-            currentSegment++
-            setSegments((previous) => [...previous, seg])
-            setDisplayedText(prev => prev + seg.text)
-            timerRef.current = window.setTimeout(showNextSegment, calculatedSegmentDelay)
-          } else {
-            setIsComplete(true)
-            onComplete?.()
-          }
-        }
-
-        showNextSegment()
-      }
-    } catch (error) {
-      onError?.(error)
+    if (typeof textStream === 'string') {
+      processStringStream(textStream)
+      return
     }
-  }, [textStream, mode, calculatedChunkSize, calculatedSegmentDelay, onComplete, onError, reset, speed])
+
+    if (textStream) {
+      void processAsyncIterable(textStream)
+    }
+  }, [processAsyncIterable, processStringStream, reset, textStream])
 
   useEffect(() => {
+    startStreaming()
+
     return () => {
-      if (timerRef.current) {
-        window.clearTimeout(timerRef.current)
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+      }
+
+      if (streamRef.current) {
+        streamRef.current.abort()
       }
     }
-  }, [])
+  }, [startStreaming])
 
   return {
     displayedText,

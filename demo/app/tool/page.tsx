@@ -3,43 +3,69 @@
 import { Tool, type ToolPart } from '@daisyui/prompt-kit'
 import { PageShell } from '@/app/components/page-shell'
 
-const tools: ToolPart[] = [
+const toolStates: ToolPart[] = [
   {
-    type: 'searchFiles',
+    type: 'file_search',
     state: 'input-streaming',
-    input: { query: 'authentication middleware' },
-    toolCallId: 'call_01',
+    input: { pattern: '*.tsx', directory: '/components' },
   },
   {
-    type: 'readFile',
+    type: 'api_call',
     state: 'input-available',
-    input: { path: 'src/middleware/auth.ts', lines: '1-50' },
-    toolCallId: 'call_02',
+    input: { endpoint: '/api/users', method: 'GET' },
   },
   {
-    type: 'executeCommand',
+    type: 'database_query',
     state: 'output-available',
-    input: { command: 'npm test -- --coverage' },
-    output: { exitCode: 0, testsRun: 42, testsPassed: 42, coverage: '87%' },
-    toolCallId: 'call_03',
+    input: { table: 'users', limit: 10 },
+    output: { count: 42, data: [{ id: 1, name: 'John Doe' }, { id: 2, name: 'Jane Smith' }] },
   },
   {
-    type: 'writeFile',
+    type: 'email_send',
     state: 'output-error',
-    input: { path: '/etc/config.yaml', content: '...' },
-    output: { error: 'Permission denied' },
-    errorText: 'EACCES: permission denied, open \'/etc/config.yaml\'',
-    toolCallId: 'call_04',
+    output: { to: 'user@example.com', subject: 'Welcome!' },
+    errorText: 'Failed to connect to SMTP server',
   },
 ]
+
+const basicTool: ToolPart = {
+  type: 'search_web',
+  state: 'output-available',
+  input: {
+    query: 'prompt-kit documentation',
+    max_results: 5,
+  },
+  output: {
+    results: [
+      {
+        title: 'Prompt Kit - Documentation',
+        url: 'https://prompt-kit.com/docs',
+        snippet: 'A comprehensive guide to using Prompt Kit components...',
+      },
+      {
+        title: 'Getting Started with Prompt Kit',
+        url: 'https://prompt-kit.com/docs/installation',
+        snippet: 'Learn how to install and use Prompt Kit in your project...',
+      },
+    ],
+  },
+}
 
 export default function ToolPage() {
   return (
     <PageShell title="Tool" description="Displays tool call invocations, inputs, and outputs.">
-      <div className="flex flex-col gap-2">
-        {tools.map((tool) => (
-          <Tool key={tool.toolCallId} toolPart={tool} defaultOpen />
-        ))}
+      <div className="space-y-3">
+        <p className="text-sm font-medium text-base-content/70">Basic tool output</p>
+        <Tool className="w-full max-w-md" toolPart={basicTool} defaultOpen />
+      </div>
+
+      <div className="space-y-3">
+        <p className="text-sm font-medium text-base-content/70">Tool states</p>
+        <div className="flex w-full max-w-md flex-col gap-2">
+          {toolStates.map((tool) => (
+            <Tool key={`${tool.type}-${tool.state}`} toolPart={tool} defaultOpen />
+          ))}
+        </div>
       </div>
     </PageShell>
   )

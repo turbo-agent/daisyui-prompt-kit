@@ -110,8 +110,12 @@ Use `PromptInput` for the chat composer shell.
 >
   <PromptInputTextarea placeholder="Type your message" />
   <PromptInputActions>
-    <PromptInputAction tooltip="Upload file">+</PromptInputAction>
-    <PromptInputAction tooltip="Send">Send</PromptInputAction>
+    <PromptInputAction tooltip="Upload file">
+      <button type="button" className="btn btn-ghost btn-sm btn-square">+</button>
+    </PromptInputAction>
+    <PromptInputAction tooltip="Send">
+      <button type="button" className="btn btn-primary btn-sm btn-circle">Send</button>
+    </PromptInputAction>
   </PromptInputActions>
 </PromptInput>
 ```
@@ -126,7 +130,7 @@ Use `PromptInput` for the chat composer shell.
 - `PromptInput.disabled?: boolean`
 - `PromptInput.children: React.ReactNode`
 - `PromptInputTextarea.disableAutosize?: boolean`
-- `PromptInputAction.tooltip?: React.ReactNode`
+- `PromptInputAction.tooltip: React.ReactNode`
 - `PromptInputAction.side?: 'top' | 'bottom' | 'left' | 'right'`
 
 #### Behavior Rules
@@ -134,7 +138,8 @@ Use `PromptInput` for the chat composer shell.
 - Pressing `Enter` submits.
 - Pressing `Shift+Enter` inserts a newline.
 - The textarea auto-resizes unless `disableAutosize` is true.
-- `PromptInputAction` stops event bubbling so button clicks do not refocus the outer shell.
+- `PromptInputAction` wraps your own interactive child such as a button, label, or icon button.
+- `PromptInputAction` stops event bubbling so child clicks do not refocus the outer shell.
 
 ### Message
 
@@ -158,8 +163,12 @@ Use `Message` to render user or assistant messages.
       {'Here is a **formatted** answer with `inline code`.'}
     </MessageContent>
     <MessageActions>
-      <MessageAction tooltip="Copy">Copy</MessageAction>
-      <MessageAction tooltip="Retry">Retry</MessageAction>
+      <MessageAction tooltip="Copy">
+        <button type="button" className="btn btn-ghost btn-sm btn-circle">Copy</button>
+      </MessageAction>
+      <MessageAction tooltip="Retry">
+        <button type="button" className="btn btn-ghost btn-sm btn-circle">Retry</button>
+      </MessageAction>
     </MessageActions>
   </div>
 </Message>
@@ -172,12 +181,13 @@ Use `Message` to render user or assistant messages.
 - `MessageAvatar.alt?: string`
 - `MessageAvatar.fallback?: string`
 - `MessageContent.markdown?: boolean`
-- `MessageAction.tooltip?: React.ReactNode`
+- `MessageAction.tooltip: React.ReactNode`
 - `MessageAction.side?: 'top' | 'bottom' | 'left' | 'right'`
 
 #### Behavior Rules
 
 - Set `markdown` on `MessageContent` when the message contains formatted model output.
+- `MessageAction` wraps your own interactive child instead of rendering a button for you.
 - Use `MessageActions` for secondary controls such as copy, regenerate, pin, or feedback.
 
 ### Chat Container
@@ -408,7 +418,7 @@ Use `ResponseStream` to progressively reveal text.
 #### Example
 
 ```tsx
-<ResponseStream textStream={responseText} mode="typewriter" speed={20} />
+<ResponseStream textStream={responseText} mode="typewriter" speed={20} as="div" />
 ```
 
 #### Props
@@ -417,6 +427,7 @@ Use `ResponseStream` to progressively reveal text.
 - `mode?: 'typewriter' | 'fade'`
 - `speed?: number`
 - `onComplete?: () => void`
+- `as?: keyof React.JSX.IntrinsicElements`
 - `fadeDuration?: number`
 - `segmentDelay?: number`
 - `characterChunkSize?: number`
@@ -424,8 +435,9 @@ Use `ResponseStream` to progressively reveal text.
 #### Behavior Rules
 
 - `typewriter` mode reveals text progressively based on `speed`.
-- `fade` mode reveals segments one by one.
+- `fade` mode reveals segmented text with staggered animation delays.
 - For fully custom streaming logic, use `useTextStream` directly.
+- `useTextStream` auto-starts when `textStream` changes and also exposes `startStreaming()` for manual restarts.
 
 ### FileUpload
 
@@ -529,7 +541,7 @@ Use `Source` for citations, links, and source previews.
 
 ```tsx
 <Source href="https://daisyui.com/components/modal/">
-  <SourceTrigger label="daisyui.com" showFavicon />
+  <SourceTrigger showFavicon />
   <SourceContent
     title="Modal"
     description="DaisyUI modal component documentation."
@@ -537,29 +549,53 @@ Use `Source` for citations, links, and source previews.
 </Source>
 ```
 
+#### Props
+
+- `Source.href: string`
+- `SourceTrigger.label?: string | number`
+- `SourceTrigger.showFavicon?: boolean`
+- `SourceContent.title: string`
+- `SourceContent.description?: string`
+
 #### Behavior Rules
 
-- `Source` is positioned relatively so the hover card can anchor correctly.
+- `Source` provides the shared link context for `SourceTrigger` and `SourceContent`.
+- `SourceTrigger` renders the clickable citation chip.
+- `SourceContent` renders the hover card preview and links to the same source.
 - `SourceTrigger` can optionally show a favicon.
 
 ### ChainOfThought
 
-Use `ChainOfThought` for a simple collapsible explanation card.
+Use `ChainOfThought` for multi-step collapsible reasoning traces.
 
 #### Example
 
 ```tsx
-<ChainOfThought defaultOpen title="Planning trace">
-  <p>1. Inspect workspace</p>
-  <p>2. Compare APIs</p>
-  <p>3. Patch packaging issues</p>
+<ChainOfThought>
+  <ChainOfThoughtStep>
+    <ChainOfThoughtTrigger>Analyzing the request</ChainOfThoughtTrigger>
+    <ChainOfThoughtContent>
+      <ChainOfThoughtItem>Determine the user intent.</ChainOfThoughtItem>
+      <ChainOfThoughtItem>Identify missing implementation details.</ChainOfThoughtItem>
+    </ChainOfThoughtContent>
+  </ChainOfThoughtStep>
 </ChainOfThought>
 ```
 
 #### Props
 
-- `defaultOpen?: boolean`
-- `title?: string`
+- `ChainOfThought.children: React.ReactNode`
+- `ChainOfThoughtStep.defaultOpen?: boolean`
+- `ChainOfThoughtStep.open?: boolean`
+- `ChainOfThoughtStep.onOpenChange?: (open: boolean) => void`
+- `ChainOfThoughtTrigger.leftIcon?: React.ReactNode`
+- `ChainOfThoughtTrigger.swapIconOnHover?: boolean`
+
+#### Behavior Rules
+
+- Compose the component with `ChainOfThoughtStep`, `ChainOfThoughtTrigger`, `ChainOfThoughtContent`, and `ChainOfThoughtItem`.
+- `ChainOfThought` automatically marks the final step so timeline connectors end cleanly.
+- `ChainOfThoughtStep` supports controlled and uncontrolled open state.
 
 ### FeedbackBar
 
@@ -718,6 +754,12 @@ const { displayedText, isComplete, startStreaming, pause, resume } = useTextStre
 - `startStreaming()`
 - `pause()`
 - `resume()`
+
+#### Behavior Rules
+
+- The hook starts streaming automatically when `textStream` changes.
+- Call `startStreaming()` when you want to manually restart the same stream.
+- `pause()` and `resume()` are intended for string-based streams.
 
 ## Composition Guidance
 

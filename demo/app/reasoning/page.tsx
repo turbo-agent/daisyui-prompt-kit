@@ -19,7 +19,9 @@ const reasoningText = `I calculated the best color balance for the image:
 
 export default function ReasoningPage() {
   const [text, setText] = useState('')
+  const [markdownText, setMarkdownText] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
+  const [isMarkdownStreaming, setIsMarkdownStreaming] = useState(false)
 
   const handleGenerate = async () => {
     setIsStreaming(true)
@@ -31,25 +33,69 @@ export default function ReasoningPage() {
     setIsStreaming(false)
   }
 
+  const markdownReasoning = `# Solving: Square Root of 144
+
+## Step 1: Problem Analysis
+I need to find a number that, when **multiplied by itself**, equals 144.
+
+## Step 2: Testing Values
+- \`10² = 100\` ❌ (too small)
+- \`13² = 169\` ❌ (too large)
+- \`12² = 144\` ✅ (perfect!)
+
+## Step 3: Verification
+\`\`\`
+12 × 12 = 144 ✓
+\`\`\`
+
+> **Answer:** The square root of 144 is **12**.`
+
+  const handleGenerateMarkdown = async () => {
+    setIsMarkdownStreaming(true)
+    setMarkdownText('')
+    for (let i = 0; i <= markdownReasoning.length; i++) {
+      setMarkdownText(markdownReasoning.slice(0, i))
+      await new Promise((r) => setTimeout(r, 20))
+    }
+    setIsMarkdownStreaming(false)
+  }
+
   return (
     <PageShell
       title="Reasoning"
       description="A collapsible reasoning trace display with markdown support."
     >
-      <button
-        className="btn btn-sm btn-outline w-fit"
-        onClick={handleGenerate}
-        disabled={isStreaming}
-      >
-        {isStreaming ? 'Generating...' : 'Generate Reasoning'}
-      </button>
+      <div className="space-y-4">
+        <p className="text-sm font-medium text-base-content/70">Basic reasoning</p>
+        <button className="btn btn-sm btn-outline w-fit" onClick={handleGenerate} disabled={isStreaming}>
+          {isStreaming ? 'Generating...' : 'Generate Reasoning'}
+        </button>
 
-      <Reasoning isStreaming={isStreaming}>
-        <ReasoningTrigger>Show reasoning</ReasoningTrigger>
-        <ReasoningContent className="ml-2 border-l-2 border-base-300 px-2 pb-1">
-          {text}
-        </ReasoningContent>
-      </Reasoning>
+        <Reasoning isStreaming={isStreaming}>
+          <ReasoningTrigger>Show reasoning</ReasoningTrigger>
+          <ReasoningContent className="ml-2 border-l-2 border-base-300 px-2 pb-1">
+            {text}
+          </ReasoningContent>
+        </Reasoning>
+      </div>
+
+      <div className="space-y-4">
+        <p className="text-sm font-medium text-base-content/70">Markdown reasoning</p>
+        <button
+          className="btn btn-sm btn-outline w-fit"
+          onClick={handleGenerateMarkdown}
+          disabled={isMarkdownStreaming}
+        >
+          {isMarkdownStreaming ? 'Thinking...' : 'Generate Reasoning'}
+        </button>
+
+        <Reasoning isStreaming={isMarkdownStreaming}>
+          <ReasoningTrigger>Show AI reasoning</ReasoningTrigger>
+          <ReasoningContent markdown className="ml-2 border-l-2 border-base-300 px-2 pb-1">
+            {markdownText}
+          </ReasoningContent>
+        </Reasoning>
+      </div>
     </PageShell>
   )
 }

@@ -28,10 +28,10 @@ function usePromptInput() {
 }
 
 const TOOLTIP_SIDE_CLASSES = {
-  top: 'tooltip-top',
-  bottom: 'tooltip-bottom',
-  left: 'tooltip-left',
-  right: 'tooltip-right',
+  top: 'bottom-full left-1/2 mb-2 -translate-x-1/2',
+  bottom: 'top-full left-1/2 mt-2 -translate-x-1/2',
+  left: 'right-full top-1/2 mr-2 -translate-y-1/2',
+  right: 'left-full top-1/2 ml-2 -translate-y-1/2',
 } as const
 
 export type PromptInputProps = {
@@ -181,43 +181,44 @@ function PromptInputActions({ children, className, ...props }: PromptInputAction
 
 export type PromptInputActionProps = {
   className?: string
-  tooltip?: React.ReactNode
+  tooltip: React.ReactNode
   children: React.ReactNode
   side?: 'top' | 'bottom' | 'left' | 'right'
-} & React.ComponentProps<'button'>
+} & React.HTMLAttributes<HTMLDivElement>
 
 function PromptInputAction({
   tooltip,
   children,
   className,
   side = 'top',
-  onClick,
   ...props
 }: PromptInputActionProps) {
   const { disabled } = usePromptInput()
-  const tooltipText = typeof tooltip === 'string' ? tooltip : undefined
+  const actionChild = React.isValidElement(children)
+    ? React.cloneElement(children, {
+        ...(disabled && 'disabled' in (children.props as object) ? { disabled: true } : {}),
+        onClick: (event: React.MouseEvent<HTMLElement>) => {
+          event.stopPropagation()
+          if (typeof children.props.onClick === 'function') {
+            children.props.onClick(event)
+          }
+        },
+      })
+    : children
 
   return (
-    <div
-      className={cn(tooltipText && 'tooltip', tooltipText && TOOLTIP_SIDE_CLASSES[side])}
-      data-tip={tooltipText}
-    >
-      <button
-        type="button"
+    <div className="group relative inline-flex" {...props}>
+      {actionChild}
+      <div
+        role="tooltip"
         className={cn(
-          'btn btn-sm btn-square btn-ghost',
-          disabled && 'btn-disabled',
-          className
+          'pointer-events-none absolute z-10 max-w-xs rounded-md bg-neutral px-2 py-1 text-xs text-neutral-content opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100',
+          TOOLTIP_SIDE_CLASSES[side],
+          className,
         )}
-        onClick={(e) => {
-          e.stopPropagation()
-          onClick?.(e)
-        }}
-        disabled={disabled}
-        {...props}
       >
-        {children}
-      </button>
+        {tooltip}
+      </div>
     </div>
   )
 }

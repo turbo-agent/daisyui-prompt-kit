@@ -95,10 +95,10 @@ const MessageActions = ({ children, className, ...props }: MessageActionsProps) 
 
 export type MessageActionProps = {
   className?: string
-  tooltip?: React.ReactNode
+  tooltip: React.ReactNode
   children: React.ReactNode
   side?: 'top' | 'bottom' | 'left' | 'right'
-} & React.ComponentProps<'button'>
+} & React.HTMLAttributes<HTMLDivElement>
 
 const MessageAction = ({
   tooltip,
@@ -107,30 +107,29 @@ const MessageAction = ({
   side = 'top',
   ...props
 }: MessageActionProps) => {
+  const actionChild = React.isValidElement(children)
+    ? React.cloneElement(children, {
+        onClick: (event: React.MouseEvent<HTMLElement>) => {
+          if (typeof children.props.onClick === 'function') {
+            children.props.onClick(event)
+          }
+        },
+      })
+    : children
+
   return (
-    <div className="group relative inline-flex">
-      <button
-        type="button"
+    <div className="group relative inline-flex" {...props}>
+      {actionChild}
+      <div
+        role="tooltip"
         className={cn(
-          'btn btn-xs btn-square btn-ghost opacity-60 hover:opacity-100',
+          'pointer-events-none absolute z-10 max-w-xs rounded-md bg-neutral px-2 py-1 text-xs text-neutral-content opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100',
+          TOOLTIP_SIDE_CLASSES[side],
+          className
         )}
-        aria-label={typeof tooltip === 'string' ? tooltip : undefined}
-        {...props}
       >
-        {children}
-      </button>
-      {tooltip ? (
-        <div
-          role="tooltip"
-          className={cn(
-            'pointer-events-none absolute z-10 max-w-xs rounded-md bg-neutral px-2 py-1 text-xs text-neutral-content opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100',
-            TOOLTIP_SIDE_CLASSES[side],
-            className
-          )}
-        >
-          {tooltip}
-        </div>
-      ) : null}
+        {tooltip}
+      </div>
     </div>
   )
 }
