@@ -1,9 +1,17 @@
 {
-  "name": "@daisyui/prompt-kit",
+  "name": "@turbo-agent/daisyui-prompt-kit",
   "version": "0.1.0",
   "description": "A DaisyUI-based React component library for AI chat interfaces",
   "type": "module",
-  "main": "./dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/turbo-agent/daisyui-prompt-kit.git"
+  },
+  "homepage": "https://github.com/turbo-agent/daisyui-prompt-kit#readme",
+  "bugs": {
+    "url": "https://github.com/turbo-agent/daisyui-prompt-kit/issues"
+  },
+  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
@@ -11,8 +19,10 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
     },
     "./styles": "./dist/styles.css"
   },

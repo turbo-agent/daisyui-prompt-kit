@@ -5,7 +5,7 @@ import {
   CodeBlockCode,
   CodeBlockCopyButton,
   CodeBlockGroup,
-} from '@daisyui/prompt-kit'
+} from '@turbo-agent/daisyui-prompt-kit'
 import { PageShell } from '@/app/components/page-shell'
 
 const basicCode = `function greet(name) {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { JSXPreview } from '@daisyui/prompt-kit'
+import { JSXPreview } from '@turbo-agent/daisyui-prompt-kit'
 import { PageShell } from '@/app/components/page-shell'
 
 const jsxContent = `

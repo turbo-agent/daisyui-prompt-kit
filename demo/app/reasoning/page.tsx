@@ -5,7 +5,7 @@ import {
   Reasoning,
   ReasoningContent,
   ReasoningTrigger,
-} from '@daisyui/prompt-kit'
+} from '@turbo-agent/daisyui-prompt-kit'
 import { PageShell } from '@/app/components/page-shell'
 
 const reasoningText = `I calculated the best color balance for the image:

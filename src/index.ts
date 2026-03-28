@@ -8,6 +8,6 @@ export { cn } from './utils'
 export { useTextStream } from './hooks'
 export type { UseTextStreamOptions, UseTextStreamReturn } from './hooks'
 
-// Import styles
-import 'katex/dist/katex.min.css'
-import './styles.css'
+// Import library-only custom styles (animations, keyframes, markdown-content)
+// Consumers must import 'katex/dist/katex.min.css' themselves if using math
+import './custom.css'

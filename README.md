@@ -1,4 +1,4 @@
-# @daisyui/prompt-kit
+# @turbo-agent/daisyui-prompt-kit
 
 A DaisyUI-native React component library for building AI chat interfaces.
 
@@ -11,9 +11,9 @@ The original prompt-kit uses shadcn/ui and Radix primitives. This version provid
 ## Installation
 
 ```bash
-npm install @daisyui/prompt-kit
+npm install @turbo-agent/daisyui-prompt-kit
 # or
-pnpm add @daisyui/prompt-kit
+pnpm add @turbo-agent/daisyui-prompt-kit
 ```
 
 ### Peer Dependencies
@@ -32,7 +32,7 @@ npm install -D @tailwindcss/typography @iconify/tailwind4 @iconify-json/lucide
 
 ### CSS Setup
 
-Add the necessary plugins to your global CSS file:
+Add the necessary plugins and source scanning to your global CSS file:
 
 ```css
 @import "tailwindcss";
@@ -41,13 +41,24 @@ Add the necessary plugins to your global CSS file:
 @plugin "daisyui" {
   themes: light --default, dark --prefersdark;
 }
+
+/* Required: scan the library's JS files so Tailwind detects its utility classes */
+@source "../node_modules/@turbo-agent/daisyui-prompt-kit/dist/**/*.js";
 ```
 
-**Tailwind CSS 4 source scanning:** If some library classes appear missing, add:
+Import the library's custom styles (animations, keyframes, markdown formatting):
 
-```css
-@source "../node_modules/@daisyui/prompt-kit/dist/**/*.js";
+```tsx
+import '@turbo-agent/daisyui-prompt-kit/styles'
 ```
+
+If you use math rendering (KaTeX), also import:
+
+```tsx
+import 'katex/dist/katex.min.css'
+```
+
+> **Note:** The library does NOT ship Tailwind CSS or DaisyUI — it only ships ~3 KB of custom animations/keyframes. All utility classes are resolved by your project's own Tailwind build via the `@source` directive above.
 
 ### Usage
 
@@ -59,13 +70,7 @@ import {
   MessageContent,
   PromptInput,
   PromptInputTextarea,
-} from '@daisyui/prompt-kit'
-```
-
-The package auto-imports its styles (including KaTeX CSS). If your bundler tree-shakes CSS side effects:
-
-```tsx
-import '@daisyui/prompt-kit/styles'
+} from '@turbo-agent/daisyui-prompt-kit'
 ```
 
 ## Components

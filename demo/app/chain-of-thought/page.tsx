@@ -8,7 +8,7 @@ import {
   ChainOfThoughtTrigger,
   CodeBlock,
   CodeBlockCode,
-} from '@daisyui/prompt-kit'
+} from '@turbo-agent/daisyui-prompt-kit'
 import { PageShell } from '@/app/components/page-shell'
 
 export default function ChainOfThoughtPage() {

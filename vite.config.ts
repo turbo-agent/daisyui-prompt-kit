@@ -40,7 +40,8 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      tailwindcss(),
+      // Only include tailwindcss in dev mode; lib build ships no Tailwind utilities
+      ...(!isLib ? [tailwindcss()] : []),
       react(),
       ...(isLib ? [dts({ include: ['src'] }), ssrSafeBrowserAPIs()] : []),
     ],
@@ -55,12 +56,37 @@ export default defineConfig(({ mode }) => {
           emptyOutDir: true,
           lib: {
             entry: resolve(__dirname, 'src/index.ts'),
-            formats: ['es'],
-            fileName: 'index',
+            formats: ['es', 'cjs'],
+            fileName: (format) => format === 'es' ? 'index.js' : 'index.cjs',
             cssFileName: 'styles',
           },
           rollupOptions: {
-            external: ['react', 'react-dom', 'react/jsx-runtime'],
+            external: [
+              'react',
+              'react-dom',
+              'react/jsx-runtime',
+              // Externalize all runtime dependencies so consumers install them
+              'clsx',
+              'katex',
+              'marked',
+              'react-jsx-parser',
+              'react-markdown',
+              'rehype-katex',
+              'remark-breaks',
+              'remark-gfm',
+              'remark-math',
+              'shiki',
+              'tailwind-merge',
+              'use-stick-to-bottom',
+              // Also externalize sub-path imports
+              /^shiki\//,
+              /^react-markdown\//,
+              /^rehype-katex\//,
+              /^remark-breaks\//,
+              /^remark-gfm\//,
+              /^remark-math\//,
+              /^katex\//,
+            ],
             output: {
               globals: {
                 react: 'React',

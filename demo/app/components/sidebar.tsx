@@ -55,7 +55,7 @@ export function Sidebar() {
       {/* Bottom section */}
       <div className="border-base-300 border-t border-dashed p-2.5">
         <a
-          href="https://github.com/nicepkg/daisyui-prompt-kit"
+          href="https://github.com/turbo-agent/daisyui-prompt-kit"
           target="_blank"
           rel="noopener noreferrer"
           className="bg-base-200/60 hover:bg-base-200 rounded-box flex items-center gap-3 px-3.5 py-2 text-sm transition-all"

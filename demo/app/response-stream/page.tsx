@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ResponseStream, Markdown, useTextStream } from '@daisyui/prompt-kit'
+import { ResponseStream, Markdown, useTextStream } from '@turbo-agent/daisyui-prompt-kit'
 import { PageShell } from '@/app/components/page-shell'
 
 function ResponseStreamMarkdown() {

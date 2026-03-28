@@ -1,6 +1,6 @@
 'use client'
 
-import { SystemMessage } from '@daisyui/prompt-kit'
+import { SystemMessage } from '@turbo-agent/daisyui-prompt-kit'
 import { PageShell } from '@/app/components/page-shell'
 
 export default function SystemMessagePage() {

@@ -1,6 +1,6 @@
 'use client'
 
-import { Loader } from '@daisyui/prompt-kit'
+import { Loader } from '@turbo-agent/daisyui-prompt-kit'
 import { PageShell } from '@/app/components/page-shell'
 
 const variants = [

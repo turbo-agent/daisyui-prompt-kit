@@ -1,6 +1,6 @@
 'use client'
 
-import { Image } from '@daisyui/prompt-kit'
+import { Image } from '@turbo-agent/daisyui-prompt-kit'
 import { PageShell } from '@/app/components/page-shell'
 
 export default function ImagePage() {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FeedbackBar } from '@daisyui/prompt-kit'
+import { FeedbackBar } from '@turbo-agent/daisyui-prompt-kit'
 import { PageShell } from '@/app/components/page-shell'
 
 export default function FeedbackBarPage() {

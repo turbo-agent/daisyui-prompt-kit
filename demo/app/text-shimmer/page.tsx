@@ -1,6 +1,6 @@
 'use client'
 
-import { TextShimmer } from '@daisyui/prompt-kit'
+import { TextShimmer } from '@turbo-agent/daisyui-prompt-kit'
 import { PageShell } from '@/app/components/page-shell'
 
 export default function TextShimmerPage() {

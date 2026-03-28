@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ThinkingBar } from '@daisyui/prompt-kit'
+import { ThinkingBar } from '@turbo-agent/daisyui-prompt-kit'
 import { PageShell } from '@/app/components/page-shell'
 
 export default function ThinkingBarPage() {

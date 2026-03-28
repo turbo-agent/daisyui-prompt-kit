@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'prompt-kit Demo — DaisyUI Edition',
-  description: 'Component demos for @daisyui/prompt-kit',
+  description: 'Component demos for @turbo-agent/daisyui-prompt-kit',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

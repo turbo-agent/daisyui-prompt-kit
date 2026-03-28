@@ -7,7 +7,7 @@ import {
   CodeBlockCode,
   CodeBlockCopyButton,
   CodeBlockGroup,
-} from '@daisyui/prompt-kit'
+} from '@turbo-agent/daisyui-prompt-kit'
 
 export function PageShell({
   title,

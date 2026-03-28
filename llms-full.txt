@@ -1,6 +1,6 @@
 # DaisyUI Prompt Kit
 
-`@daisyui/prompt-kit` is a React component library for building AI chat interfaces on top of DaisyUI.
+`@turbo-agent/daisyui-prompt-kit` is a React component library for building AI chat interfaces on top of DaisyUI.
 
 It is designed for DaisyUI >= 5.0, React >= 19.0, and Tailwind CSS >= 4.0.
 
@@ -13,9 +13,9 @@ This package is a DaisyUI-native alternative to the original shadcn-based prompt
 ### 1. Install the package
 
 ```bash
-npm install @daisyui/prompt-kit
+npm install @turbo-agent/daisyui-prompt-kit
 # or
-pnpm add @daisyui/prompt-kit
+pnpm add @turbo-agent/daisyui-prompt-kit
 ```
 
 ### 2. Set up peer dependencies
@@ -65,16 +65,18 @@ In your global CSS entry file (e.g., `globals.css` or `app.css`), add the necess
 }
 ```
 
-#### Important: Tailwind CSS 4 source scanning
+#### Important: Tailwind CSS 4 source scanning (REQUIRED)
 
-Tailwind CSS 4 auto-detects source files in your project, but it does **not** scan files inside `node_modules` or linked packages. If you use Tailwind utility classes that only appear inside `@daisyui/prompt-kit` source (e.g., `hidden`, `sr-only`, `animate-*`), you must add a `@source` directive so Tailwind generates those classes:
+The library does NOT ship Tailwind CSS or DaisyUI — it only ships ~3 KB of custom animations/keyframes.
+All utility classes are resolved by your project's own Tailwind build. You MUST add a `@source` directive
+so Tailwind scans the library's JS files and generates the required utility classes:
 
 ```css
 @import "tailwindcss";
-@source "../node_modules/@daisyui/prompt-kit/dist/**/*.js";
+@source "../node_modules/@turbo-agent/daisyui-prompt-kit/dist/**/*.js";
 ```
 
-> This is only needed if some library classes appear missing in your build output. Most common Tailwind classes are already generated from your own project source files.
+Without this directive, many library classes (e.g., `hidden`, `sr-only`, `animate-*`, `prose-*`) will be missing.
 
 ### 4. Import and use
 
@@ -90,15 +92,21 @@ import {
   PromptInputActions,
   PromptInputAction,
   ScrollButton,
-} from '@daisyui/prompt-kit'
+} from '@turbo-agent/daisyui-prompt-kit'
 ```
 
 #### Styles
 
-The package auto-imports its styles (including KaTeX CSS for math rendering) as a side effect of the main entry. If your bundler tree-shakes CSS side effects, explicitly import:
+Import the library's custom styles (animations, keyframes, markdown formatting):
 
 ```tsx
-import '@daisyui/prompt-kit/styles'
+import '@turbo-agent/daisyui-prompt-kit/styles'
+```
+
+If you use math rendering (KaTeX), also import:
+
+```tsx
+import 'katex/dist/katex.min.css'
 ```
 
 ---
@@ -272,7 +280,7 @@ You can override or extend by passing `className`:
 - Inline and block math equations (via `remark-math` + `rehype-katex`)
 - Fenced code blocks auto-rendered with `CodeBlock` + `CodeBlockCode` (Shiki syntax highlighting)
 - Inline code rendered as pill-style `bg-base-200 rounded-sm px-1 font-mono text-sm`
-- KaTeX CSS is bundled with the library (imported automatically)
+- KaTeX CSS must be imported separately: `import 'katex/dist/katex.min.css'`
 
 #### Requires
 
@@ -788,7 +796,7 @@ const { displayedText, isComplete, startStreaming, pause, resume } = useTextStre
 Tailwind class merging utility (wraps `clsx` + `tailwind-merge`):
 
 ```tsx
-import { cn } from '@daisyui/prompt-kit'
+import { cn } from '@turbo-agent/daisyui-prompt-kit'
 
 cn('btn btn-primary', isActive && 'btn-active', className)
 ```
@@ -804,7 +812,7 @@ cn('btn btn-primary', isActive && 'btn-active', className)
 | `react-markdown` | Markdown → React rendering |
 | `remark-gfm` | GitHub Flavored Markdown (tables, strikethrough, etc.) |
 | `remark-math` + `rehype-katex` | Math equation rendering |
-| `katex` | KaTeX CSS (auto-imported) |
+| `katex` | KaTeX CSS (import `katex/dist/katex.min.css` separately) |
 | `shiki` | Syntax highlighting for code blocks |
 | `marked` | Markdown tokenizer for block splitting |
 | `use-stick-to-bottom` | Chat container auto-scroll |
@@ -832,7 +840,7 @@ For a project that already uses DaisyUI 5 + Tailwind CSS 4, here is the minimal 
 ### 1. Install
 
 ```bash
-pnpm add @daisyui/prompt-kit
+pnpm add @turbo-agent/daisyui-prompt-kit
 pnpm add -D @tailwindcss/typography @iconify/tailwind4 @iconify-json/lucide
 ```
 
@@ -845,9 +853,19 @@ pnpm add -D @tailwindcss/typography @iconify/tailwind4 @iconify-json/lucide
 @plugin "daisyui" {
   themes: light --default, dark --prefersdark;
 }
+
+/* Required: scan library JS so Tailwind generates its utility classes */
+@source "../node_modules/@turbo-agent/daisyui-prompt-kit/dist/**/*.js";
 ```
 
-### 3. Use
+### 3. Imports
+
+```tsx
+import '@turbo-agent/daisyui-prompt-kit/styles' // custom animations/keyframes
+import 'katex/dist/katex.min.css'               // if using math rendering
+```
+
+### 4. Use
 
 ```tsx
 import {
@@ -879,10 +897,10 @@ import {
   SystemMessage,
   FeedbackBar,
   Loader,
-} from '@daisyui/prompt-kit'
+} from '@turbo-agent/daisyui-prompt-kit'
 ```
 
-That's it. All components will render correctly with your DaisyUI theme colors, and built-in icons, prose styling, and animations will work out of the box.
+That's it. The library ships NO Tailwind CSS / DaisyUI — only ~3 KB of custom animations. All utility classes come from your own Tailwind build via `@source`.
 
 ---
 

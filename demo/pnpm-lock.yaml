@@ -8,7 +8,7 @@ importers:
 
   .:
     dependencies:
-      '@daisyui/prompt-kit':
+      '@turbo-agent/daisyui-prompt-kit':
         specifier: link:..
         version: link:..
       next:

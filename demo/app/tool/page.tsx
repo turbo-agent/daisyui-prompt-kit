@@ -1,6 +1,6 @@
 'use client'
 
-import { Tool, type ToolPart } from '@daisyui/prompt-kit'
+import { Tool, type ToolPart } from '@turbo-agent/daisyui-prompt-kit'
 import { PageShell } from '@/app/components/page-shell'
 
 const toolStates: ToolPart[] = [

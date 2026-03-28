@@ -1,6 +1,6 @@
 'use client'
 
-import { Markdown } from '@daisyui/prompt-kit'
+import { Markdown } from '@turbo-agent/daisyui-prompt-kit'
 
 export function LlmsContent({ content }: { content: string }) {
   return (
