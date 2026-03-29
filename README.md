@@ -18,17 +18,11 @@ pnpm add @turbo-agent/daisyui-prompt-kit
 
 ### Peer Dependencies
 
-**Required** (standard DaisyUI project):
-
 ```bash
-npm install react react-dom tailwindcss daisyui
+npm install react react-dom tailwindcss daisyui @tailwindcss/typography @iconify/tailwind4 @iconify-json/lucide
 ```
 
-**Recommended** (for icons and markdown rendering):
-
-```bash
-npm install -D @tailwindcss/typography @iconify/tailwind4 @iconify-json/lucide
-```
+> All peer dependencies are **required**. Typography plugin provides `prose` classes used by Markdown/Message components; Iconify provides icons used throughout the library.
 
 ### CSS Setup
 
@@ -52,11 +46,13 @@ Import the library's custom styles (animations, keyframes, markdown formatting):
 import '@turbo-agent/daisyui-prompt-kit/styles'
 ```
 
-If you use math rendering (KaTeX), also import:
+If you use math rendering (KaTeX), also import in your JS/TSX entry file:
 
 ```tsx
 import 'katex/dist/katex.min.css'
 ```
+
+> **Important:** The KaTeX CSS must be imported in JS/TSX, not via CSS `@import`, because PostCSS/Tailwind 4 cannot resolve bare Node module paths.
 
 > **Note:** The library does NOT ship Tailwind CSS or DaisyUI — it only ships ~3 KB of custom animations/keyframes. All utility classes are resolved by your project's own Tailwind build via the `@source` directive above.
 

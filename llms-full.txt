@@ -20,20 +20,10 @@ pnpm add @turbo-agent/daisyui-prompt-kit
 
 ### 2. Set up peer dependencies
 
-#### Required
-
-Your project must already have these installed (standard DaisyUI setup):
+All peer dependencies are **required**:
 
 ```bash
-npm install react react-dom tailwindcss daisyui
-```
-
-#### Recommended (for full functionality)
-
-These are optional peer dependencies. Most components with built-in icons require Iconify, and markdown-based components require the typography plugin.
-
-```bash
-npm install -D @tailwindcss/typography @iconify/tailwind4 @iconify-json/lucide
+npm install react react-dom tailwindcss daisyui @tailwindcss/typography @iconify/tailwind4 @iconify-json/lucide
 ```
 
 | Package | Purpose | Used by |
@@ -103,11 +93,13 @@ Import the library's custom styles (animations, keyframes, markdown formatting):
 import '@turbo-agent/daisyui-prompt-kit/styles'
 ```
 
-If you use math rendering (KaTeX), also import:
+If you use math rendering (KaTeX), also import in your JS/TSX entry file:
 
 ```tsx
 import 'katex/dist/katex.min.css'
 ```
+
+> **Important:** The KaTeX CSS must be imported in JS/TSX (not via CSS `@import`), because PostCSS/Tailwind 4 cannot resolve bare Node module paths.
 
 ---
 
@@ -263,7 +255,7 @@ Renders markdown strings into styled HTML with support for GFM, math (KaTeX), an
 The component applies these classes by default — you do NOT need to add `prose` manually:
 
 ```
-prose prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-xs max-w-none
+prose max-w-none
 ```
 
 You can override or extend by passing `className`:
@@ -827,9 +819,9 @@ cn('btn btn-primary', isActive && 'btn-active', className)
 | `react-dom` >= 19 | **Yes** | — |
 | `tailwindcss` >= 4 | **Yes** | CSS framework |
 | `daisyui` >= 5 | **Yes** | Component classes and theming |
-| `@tailwindcss/typography` >= 0.5 | Recommended | `prose` classes for Markdown, MessageContent, ReasoningContent |
-| `@iconify/tailwind4` >= 1 | Recommended | Renders built-in Lucide icon classes |
-| `@iconify-json/lucide` >= 1 | Recommended | Lucide icon data |
+| `@tailwindcss/typography` >= 0.5 | **Yes** | `prose` classes for Markdown, MessageContent, ReasoningContent |
+| `@iconify/tailwind4` >= 1 | **Yes** | Renders built-in Lucide icon classes |
+| `@iconify-json/lucide` >= 1 | **Yes** | Lucide icon data |
 
 ---
 
@@ -862,7 +854,7 @@ pnpm add -D @tailwindcss/typography @iconify/tailwind4 @iconify-json/lucide
 
 ```tsx
 import '@turbo-agent/daisyui-prompt-kit/styles' // custom animations/keyframes
-import 'katex/dist/katex.min.css'               // if using math rendering
+import 'katex/dist/katex.min.css'               // required for math rendering (must be JS import, not CSS @import)
 ```
 
 ### 4. Use

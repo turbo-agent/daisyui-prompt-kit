@@ -13,7 +13,6 @@ const LOADER_KEYFRAMES = `
 @keyframes dpk-wave-bars{0%,100%{transform:scaleY(1);opacity:.5}50%{transform:scaleY(.6);opacity:1}}
 @keyframes dpk-blink{0%,100%{opacity:1}50%{opacity:0}}
 @keyframes dpk-text-blink{0%,100%{opacity:.45}50%{opacity:1}}
-@keyframes dpk-shimmer{0%{background-position:200% 50%}100%{background-position:-200% 50%}}
 @keyframes dpk-loading-dots{0%,20%{opacity:.2}50%{opacity:1}100%{opacity:.2}}
 `
 
@@ -411,11 +410,12 @@ export function TextShimmerLoader({
       <LoaderKeyframes />
       <div
         className={cn(
-          'bg-[length:200%_auto] bg-clip-text font-medium text-transparent',
+          'bg-clip-text font-medium text-transparent',
           textSizes[size],
           className,
         )}
         style={{
+          backgroundSize: '200% auto',
           animation: 'dpk-shimmer 4s infinite linear',
           backgroundImage:
             'linear-gradient(to right, rgb(from var(--color-base-content) r g b / 0.45) 40%, var(--color-primary) 60%, rgb(from var(--color-base-content) r g b / 0.45) 80%)',

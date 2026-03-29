@@ -115,36 +115,4 @@ html, body {
   padding: 12px;
 }
 
-/* Fix KaTeX + prose conflicts */
-.katex-mathml {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  clip-path: inset(50%) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-}
-
-.katex {
-  font-size: 1em;
-}
-
-.katex-display {
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 0.5em 0;
-}
-
-.prose .katex {
-  font-size: 1em;
-}
-
-/* Prevent prose from styling KaTeX internals */
-.prose .katex * {
-  font-style: normal;
-  font-weight: normal;
-}
+/* KaTeX + prose fixes are now provided by @turbo-agent/daisyui-prompt-kit/styles */
